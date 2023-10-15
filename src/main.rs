@@ -27,7 +27,7 @@ async fn main() {
     }
 
     if args.len() == 1 {
-        response_object = random_quote().await.json().await.unwrap();
+        response_object = get_random_quote().await.json().await.unwrap();
     } else if args.len() == 2 {
         if args[1] == "-h" || args[1] == "--here" {
             print_help();
@@ -39,6 +39,9 @@ async fn main() {
             );
             process::exit(1);
         }
+
+        response_object =  get_cateogory_quote("motivation").await.json().await.unwrap();
+
     } else {
         unreachable!();
     }
@@ -49,9 +52,9 @@ async fn main() {
     // );
 }
 
-async fn random_quote() -> Response {
+async fn get_random_quote() -> Response {
     let response: Result<Response, reqwest::Error> = Client::new()
-        .get("https://api.qotable.io/random")
+        .get("https://api.quotable.io/random?tags=love")
         .send()
         .await;
 
@@ -60,7 +63,26 @@ async fn random_quote() -> Response {
         process::exit(1);
     }
 
-    response.unwrap()
+    return response.unwrap();
+}
+
+async fn get_cateogory_quote(category: &str) -> Response {
+    let response: Result<Response, reqwest::Error> = Client::new()
+        .get("https://api.quotable.io/random?tags=".to_string() + category)
+        .send()
+        .await;
+
+
+    return check_response(response);
+}
+
+fn check_response(response: Result<Response, reqwest::Error>) -> Response {
+    if response.unwrap().status() != 200 {
+            println!("Couldn't fetch the quote for some reason. Check your internet connection.");
+            process::exit(1);
+    }
+
+    return response.;
 }
 
 fn print_help() {
