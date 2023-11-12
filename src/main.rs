@@ -6,7 +6,7 @@ use serde::Deserialize;
 use std::env;
 use std::process;
 
-use reqwest::{Client, Response};
+use reqwest::{Client, Response, Error};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -29,9 +29,10 @@ async fn main() {
     if args.len() == 1 {
         response_object = get_random_quote().await.json().await.unwrap();
     } else if args.len() == 2 {
-        if args[1] == "-h" || args[1] == "--here" {
+        if args[1] == "-h" || args[1] == "--help" {
             print_help();
         }
+        process::exit(0);
     } else if args.len() == 3 {
         if !acceptable_arguments.contains(&args[1].as_str()) {
             println!(
@@ -46,10 +47,10 @@ async fn main() {
         unreachable!();
     }
 
-    // println!(
-    //     "\"{}\"\n{}",
-    //     response_object.content, response_object.author
-    // );
+    println!(
+        "\"{}\"\n{}",
+        response_object.content, response_object.author
+    );
 }
 
 async fn get_random_quote() -> Response {
@@ -58,12 +59,7 @@ async fn get_random_quote() -> Response {
         .send()
         .await;
 
-    if response.is_err() {
-        println!("Couldn't fetch the quote for some reason. Check your internet connection.");
-        process::exit(1);
-    }
-
-    return response.unwrap();
+    return check_response(response);
 }
 
 async fn get_cateogory_quote(category: &str) -> Response {
@@ -77,14 +73,38 @@ async fn get_cateogory_quote(category: &str) -> Response {
 }
 
 fn check_response(response: Result<Response, reqwest::Error>) -> Response {
-    if response.unwrap().status() != 200 {
+    let response = response.unwrap();
+    if response.status() != 200 {
             println!("Couldn't fetch the quote for some reason. Check your internet connection.");
             process::exit(1);
     }
 
-    return response.;
+    return response; 
 }
 
 fn print_help() {
-    println!("in help function");
+    print!(
+    "Usage: cliquote [OPTION] [args]
+
+    Arguments: 
+        [args]... Possible quote categories
+
+    Categories:
+        'age',           'athletics',   'business',     'change',
+        'character',     'competition', 'conservative', 'courage',
+        'creativity',    'education',   'ethics',       'failure',
+        'faith',         'family',      'film',         'freedom',
+        'friendship',    'future',      'generosity',   'genius',
+        'gratitude',     'happiness',   'health',       'history',
+        'honor',         'humor',       'humorous',     'imagination',
+        'inspirational', 'knowledge',   'leadership',   'life',
+        'literature',    'love',        'mathematics',  'motivational',
+        'nature',        'opportunity', 'pain',         'perseverance',
+        'philosophy',    'politics',    'proverb',      'religion',
+        'sadness',       'science',     'self',         'society',
+        'spirituality',  'sports',      'stupidity',    'success',
+        'technology',    'time',        'tolerance',    'truth',
+        'virtue',        'war',         'weakness',     'wellness',
+        'wisdom',        'work',        'work'
+    ");
 }
