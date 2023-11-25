@@ -77,7 +77,6 @@ const CATEGORIES: [&str; 63] = ["age",
 "weakness",
 "wellness",
 "wisdom",
-"work",
 "work"];
 
 #[async_std::main]
@@ -184,7 +183,7 @@ fn print_help() {
         spirituality,  sports,      stupidity,    success,
         technology,    time,        tolerance,    truth,
         virtue,        war,         weakness,     wellness,
-        wisdom,        work,        work";
+        wisdom,        work";
 
 
 
